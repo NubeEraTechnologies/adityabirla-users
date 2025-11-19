@@ -1,21 +1,25 @@
 ---
-- name: Create 20 users on Azure Ubuntu VM
+- name: Create 20 users on Azure VM using chpasswd (most reliable)
   hosts: ubuntu_vm
   become: yes
   vars_files:
     - users.yml
 
-  vars:
-    default_password_hash: "$6$17V87TnQjH5hyrx/$xJk23bpZPfh7pvav3zJF6NjFXcLWFb4n0tmPOEIViqU090m18H7PfbT3mEyI7f9u1pgurHfGIMe6KjrG8NY7."
-
   tasks:
 
-    - name: Ensure users exist and set password always
+    - name: Create users with /bin/bash
       user:
         name: "{{ item }}"
-        state: present
-        shell: /bin/bash
         create_home: yes
-        password: "{{ default_password_hash }}"
-        update_password: always   # << FIX
+        shell: /bin/bash
+      loop: "{{ users }}"
+
+    - name: Set password for all users using chpasswd
+      ansible.builtin.shell: |
+        echo "{{ item }}:Password@123" | chpasswd
+      loop: "{{ users }}"
+
+    - name: Unlock user accounts
+      ansible.builtin.shell: |
+        passwd -u {{ item }}
       loop: "{{ users }}"
