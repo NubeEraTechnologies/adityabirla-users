@@ -16,11 +16,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Ansible & passlib
+      - name: Install Ansible
         run: |
           sudo apt update
-          sudo apt install -y ansible python3-pip
-          pip3 install passlib
+          sudo apt install -y ansible
 
       - name: Setup SSH Key
         run: |
