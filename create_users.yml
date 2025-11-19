@@ -1,21 +1,22 @@
 ---
-- name: Create 20 users on Ubuntu VM
+- name: Create 20 users on Azure Ubuntu VM
   hosts: ubuntu_vm
   become: yes
   vars_files:
     - users.yml
 
   tasks:
-    - name: Create users
-      user:
+
+    - name: Create users with home directory
+      ansible.builtin.user:
         name: "{{ item }}"
         state: present
-        create_home: yes
         shell: /bin/bash
+        create_home: yes
       loop: "{{ users }}"
 
-    - name: Set default password
-      user:
+    - name: Set default password for each user
+      ansible.builtin.user:
         name: "{{ item }}"
         password: "{{ 'Password@123' | password_hash('sha512') }}"
       loop: "{{ users }}"
