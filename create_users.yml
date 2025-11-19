@@ -5,18 +5,16 @@
   vars_files:
     - users.yml
 
+  vars:
+    default_password_hash: "$6$17V87TnQjH5hyrx/$xJk23bpZPfh7pvav3zJF6NjFXcLWFb4n0tmPOEIViqU090m18H7PfbT3mEyI7f9u1pgurHfGIMe6KjrG8NY7."
+
   tasks:
 
     - name: Create users with home directory
-      ansible.builtin.user:
+      user:
         name: "{{ item }}"
         state: present
         shell: /bin/bash
         create_home: yes
-      loop: "{{ users }}"
-
-    - name: Set default password for each user
-      ansible.builtin.user:
-        name: "{{ item }}"
-        password: "{{ 'Password@123' | password_hash('sha512') }}"
+        password: "{{ default_password_hash }}"
       loop: "{{ users }}"
