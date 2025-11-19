@@ -1,5 +1,5 @@
 ---
-- name: Create 20 users on Azure VM using chpasswd (most reliable)
+- name: Create real users on Azure VM using chpasswd
   hosts: ubuntu_vm
   become: yes
   vars_files:
@@ -14,12 +14,12 @@
         shell: /bin/bash
       loop: "{{ users }}"
 
-    - name: Set password for all users using chpasswd
+    - name: Set password for all users using chpasswd (works 100% on Azure)
       ansible.builtin.shell: |
         echo "{{ item }}:Password@123" | chpasswd
       loop: "{{ users }}"
 
-    - name: Unlock user accounts
+    - name: Unlock all user accounts
       ansible.builtin.shell: |
         passwd -u {{ item }}
       loop: "{{ users }}"
