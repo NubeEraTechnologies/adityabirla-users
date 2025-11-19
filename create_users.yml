@@ -10,11 +10,12 @@
 
   tasks:
 
-    - name: Create users with home directory
+    - name: Ensure users exist and set password always
       user:
         name: "{{ item }}"
         state: present
         shell: /bin/bash
         create_home: yes
         password: "{{ default_password_hash }}"
+        update_password: always   # << FIX
       loop: "{{ users }}"
