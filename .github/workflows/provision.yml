@@ -1,0 +1,41 @@
+name: Provision Azure Ubuntu VM
+
+on:
+  workflow_dispatch:   # <-- Manual Trigger (One Click)
+  push:
+    paths:
+      - "create_users.yml"
+      - "users.yml"
+      - "inventory.ini"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Add VM to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.VM_IP }} >> ~/.ssh/known_hosts
+
+      - name: Update Inventory File with Dynamic IP
+        run: |
+          sed -i "s/YOUR_VM_PUBLIC_IP/${{ secrets.VM_IP }}/" inventory.ini
+          sed -i "s/azureuser/${{ secrets.VM_USER }}/" inventory.ini
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i inventory.ini create_users.yml
