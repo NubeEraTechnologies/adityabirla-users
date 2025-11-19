@@ -1,0 +1,21 @@
+---
+- name: Create 20 users on Ubuntu VM
+  hosts: ubuntu_vm
+  become: yes
+  vars_files:
+    - users.yml
+
+  tasks:
+    - name: Create users
+      user:
+        name: "{{ item }}"
+        state: present
+        create_home: yes
+        shell: /bin/bash
+      loop: "{{ users }}"
+
+    - name: Set default password
+      user:
+        name: "{{ item }}"
+        password: "{{ 'Password@123' | password_hash('sha512') }}"
+      loop: "{{ users }}"
